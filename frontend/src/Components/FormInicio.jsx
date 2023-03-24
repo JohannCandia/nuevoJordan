@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PrimeraEtapa from './PrimeraEtapa';
-import { Tab, Tabs, Typography, Box, Button, TextField,Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Tab, Tabs, Typography, Box, Button, TextField,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter } from "@mui/material";
 import TabPanel from './TabPanel';
 import PropTypes from 'prop-types';
 function Consulta() {
@@ -204,10 +204,26 @@ function Consulta() {
                             </TableCell>
                             <TableCell>
                               {formatDate(filteredRow.Fecha)}
-              </TableCell>
+                            </TableCell>
               </TableRow>
               ))}
               </TableBody>
+              <TableFooter>
+                  <TableRow>
+                      <TableCell colSpan={3} align="right">
+                        <Typography  component="div">
+                        Cantidad total del área
+                        </Typography>
+                      </TableCell>
+                       <TableCell>
+                          <Typography component="div">
+                          {row.cantidad}
+                          </Typography>
+                       </TableCell>
+                  <TableCell colSpan={2} />
+                  </TableRow>
+                          
+              </TableFooter>
               </Table>
               </TabPanel>
               ))}
