@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PrimeraEtapa from './PrimeraEtapa';
-import { Tab, Tabs, Typography, Box } from "@mui/material";
+import { Tab, Tabs, Typography, Box, Button, TextField,Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import TabPanel from './TabPanel';
 import PropTypes from 'prop-types';
 function Consulta() {
@@ -129,21 +129,23 @@ function Consulta() {
         </div>
         <div></div>
         <div className="flex flex-col items-center">
-          <h1 className="text-2xl mt-10">Consulta detalles OT </h1>
+          <Typography sx={{ mt: 2, mb: 4 }} variant="h5"
+          >Consulta detalles OT </Typography>
           <div className="mb-10 flex flex-col w-1/3">
-            <input
+            <TextField
               type="text"
               value={numOT}
               onChange={(e) => setNumOT(e.target.value)}
-              placeholder="Ingrese número de OT"
-              className="p-2 border border-black rounded-md"
+              label="Número de OT"
             />
-            <button
-              className="bg-green-700 text-white p-2 mt-2 rounded-md hover:bg-green-500"
+            <Button
+              color='success'
+              variant='contained'
+              sx = {{mt: 2, mb: 2}}
               onClick={fetchData}
             >
               Buscar
-            </button>
+            </Button>
           </div>
           
           {encontrada ? (
@@ -165,59 +167,48 @@ function Consulta() {
     
               {dataPorArea.map((row, index) => (
                 <TabPanel key={index} value={tabIndex} index={index}>
-                  <table className="table-auto table-sm rounded-md mr-10">
-                    <thead className="bg-green-700 text-white">
-                      <tr className="border border-black">
-                        <th className="border p-4 text-center font-roboto uppercase border-black">
-                          Num_OT
-                        </th>
-                        <th className="border p-4 text-center font-roboto uppercase border-black">
-                          Id
-                        </th>
-                        <th className="border p-4 text-center font-roboto uppercase border-black">
-                          Operador
-                        </th>
-                        <th className="border p-4 text-center font-roboto uppercase border-black">
-                          Cantidad
-                        </th>
-                        <th className="border p-4 text-center font-roboto uppercase border-black">
-                          Área
-                        </th>
-                        <th className="border p-4 text-center font-roboto uppercase border-black">
-                          Fecha
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <Table>
+                    <TableHead>
+                      <TableRow  sx={{ '&:last-child TableCell, &:last-child th': { border: 0 } }}>
+                        <TableCell>   Numero de OT </TableCell>
+                        <TableCell>   Id </TableCell>
+                        <TableCell>   Operador </TableCell>
+                        <TableCell>   Cantidad  </TableCell>
+                        <TableCell>   Área </TableCell>
+                        <TableCell>   Fecha </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
                       {historicoData
                         .filter((item) => item.Codigo_Area === row.area)
                         .map((filteredRow, index) => (
-                          <tr
-                            className="border border-black hover:bg-slate-100"
+                          <TableRow
                             key={index}
+                            sx={{ '&:last-child TableCell, &:last-child th': { border: 0 } }}
+
                           >
-                            <td className="border p-4 text-center border-black">
+                            <TableCell>
                               {filteredRow.Num_Ot}
-                            </td>
-                            <td className="border p-4 text-center border-black">
+                            </TableCell>
+                            <TableCell>
                               {filteredRow.Id}
-                            </td>
-                            <td className="border p-4 text-center border-black uppercase">
+                            </TableCell>
+                            <TableCell>
                               {filteredRow.Rut_Operador}
-                            </td>
-                            <td className="border p-4 text-center border-black">
+                            </TableCell>
+                            <TableCell>
                               {filteredRow.Cantidad}
-                            </td>
-                            <td className="border p-4 text-center uppercase border-black">
+                            </TableCell>
+                            <TableCell >
                               {obtenerNombreArea(filteredRow.Codigo_Area)}
-                            </td>
-                            <td className="border p-4 text-center border-black">
+                            </TableCell>
+                            <TableCell>
                               {formatDate(filteredRow.Fecha)}
-              </td>
-              </tr>
+              </TableCell>
+              </TableRow>
               ))}
-              </tbody>
-              </table>
+              </TableBody>
+              </Table>
               </TabPanel>
               ))}
               </>
