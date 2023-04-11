@@ -37,7 +37,7 @@ const PrimeraEtapa = () => {
       console.log(error);
     }
   };
-
+  
   useEffect(() => {
     fetchData(numOT);
   }, [numOT]);

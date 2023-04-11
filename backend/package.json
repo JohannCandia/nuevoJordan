@@ -15,7 +15,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js --exec babel-node",
-    "start": "node index.js"
+    "start": "node index.js",
+    "stert": "node app.js"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +26,6 @@
     "@babel/core": "^7.21.0",
     "@babel/node": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
-    "nodemon": "^2.0.21"
+    "nodemon": "^2.0.22"
   }
 }

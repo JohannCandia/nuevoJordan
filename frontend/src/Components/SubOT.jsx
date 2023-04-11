@@ -1,14 +1,31 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography';
+import axios from 'axios';
 
 const SubOT = ({ id, valorSubOT, fechaEntrega, contadorSubOT, numOT, onRemove }) => {
   const [enProduccion, setEnProduccion] = useState(false);
-
-  const handleProduccion = () => {
+  const data = { numOT, valorSubOT };
+ 
+  const handleProduccion = async () => {
     setEnProduccion(true);
-    console.log('En produccion');
-  };
+      
+      try {
+        const response = await fetch('http://localhost:3000/liberaOT', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+     
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    
+  
 
   const handleRemove = () => onRemove(id);
   

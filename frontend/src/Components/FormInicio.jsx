@@ -1,36 +1,40 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import PrimeraEtapa from './PrimeraEtapa';
-import { Tab, Tabs, Typography, Box, Button, TextField,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter } from "@mui/material";
+import { Tab, Tabs, Typography, Fade, Button, TextField, Table, TableBody, TableCell, Box, TableHead, TableRow, TableFooter, List, ListItem, Grid, Modal } from "@mui/material";
 import TabPanel from './TabPanel';
-import PropTypes from 'prop-types';
+
+import './styles.css'; // importar el archivo CSS para las animaciones
+
+
 function Consulta() {
   const [numOT, setNumOT] = useState('');
-  const [historicoData, setHistoricoData] = useState();
-  const [otDetalleData, setOtDetalleData] = useState();
+  const [historicoData, setHistoricoData] = useState([]);
+  const [otDetalleData, setOtDetalleData] = useState([]);
   const [dataPorArea, setDataPorArea] = useState([]);
   const [error, setError] = useState(null);
   const [totalCantidad, setTotalCantidad] = useState(null);
   const [encontrada, setEncontrada] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
+  const [Merma, setMerma] = useState(0);
+  const [open, setOpen] = useState(false);
 
 
+  var totalMerma = 0;
+  const styless = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
   const areas = {
-    AC1: "Control de calidad",
-    AC2: "Control de calidad (Personalizado)",
-    AH1: "Holograma",
-    AI1: "Impresión",
-    AL1: "Laminado",
-    AM1: "Mifare",
-    AP1: "Personalizado",
-    AQ1: "Troquelado",
-    AS1: "Serigrafia",
-    AV1: "Muhlbauer Chips",
-    D01: "Desarrollo",
-    M01: "Mecanizado",
-    MT1: "Mantencion",
-    PC1: "Pinchado",
-    X01: "Area de prueba",
+    AC1: "Control de calidad", AC2: "Control de calidad (Personalizado)", AH1: "Holograma",
+    AI1: "Impresión", AL1: "Laminado", AM1: "Mifare", AP1: "Personalizado",
+    AQ1: "Troquelado", AS1: "Serigrafia", AV1: "Muhlbauer Chips", D01: "Desarrollo",
+    M01: "Mecanizado", MT1: "Mantencion", PC1: "Pinchado", X01: "Area de prueba",
   };
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
@@ -41,10 +45,12 @@ function Consulta() {
       'aria-controls': `simple-tabpanel-${index}`,
     };
   }
-  
-  const obtenerNombreArea = (codigoArea) => areas[codigoArea] || codigoArea;
 
+  const obtenerNombreArea = (codigoArea) => areas[codigoArea] || codigoArea;
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const fetchData = async () => {
+
     if (numOT === '') {
       window.alert('Debe ingresar el número de OT');
       return;
@@ -77,105 +83,164 @@ function Consulta() {
         throw new Error("OT NO ENCONTRADA");
       } else {
         setEncontrada(true);
+
       }
 
       const historicoData = await historicoResult.json();
       const otDetalleData = await otDetalleResult.json();
       setHistoricoData(historicoData);
       setOtDetalleData(otDetalleData);
-    
-        // Objeto que guarda la cantidad total por área
-        const totalPorArea = {};
 
-        // Sumar las cantidades por área
-        historicoData.forEach((row) => {
-          const { Codigo_Area, Cantidad } = row;
-          if (totalPorArea[Codigo_Area]) {
-            totalPorArea[Codigo_Area] += Cantidad;
-          } else {
-            totalPorArea[Codigo_Area] = Cantidad;
-          }
-        });     
-      
+      // Objeto que guarda la cantidad total por área
+      const totalPorArea = {};
+
+      // Sumar las cantidades por área
+      historicoData.forEach((row) => {
+        totalMerma = totalMerma + parseInt(row.Contador2);
+
+        const { Codigo_Area, Cantidad } = row;
+        if (totalPorArea[Codigo_Area]) {
+          totalPorArea[Codigo_Area] += Cantidad;
+
+        } else {
+          totalPorArea[Codigo_Area] = Cantidad;
+        }
+      });
 
       // Generar la lista de objetos con la cantidad total por área
       const dataPorArea = Object.entries(totalPorArea).map(([area, cantidad]) => ({
         area,
         cantidad,
+
       }));
+      setMerma(totalMerma);
 
-     // Calcular la suma total de todas las cantidades
-     const totalCantidad = historicoData.reduce((accumulator, currentValue) => accumulator + currentValue.Cantidad, 0);
-     
-     setDataPorArea(dataPorArea);
-     setTotalCantidad(totalCantidad);
-   } catch (err) {
-     setError(err.message);
-   }}
+      // Calcular la suma total de todas las cantidades
+      const totalCantidad = historicoData.reduce((accumulator, currentValue) => accumulator + currentValue.Cantidad, 0);
+      console.log(otDetalleData)
+      setDataPorArea(dataPorArea);
+      setTotalCantidad(totalCantidad);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
 
- 
-    const formatDate = (isoDateString) => {
-      const date = new Date(isoDateString);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-       return` ${day}-${month}-${year}`;
-    };
-  
-    return (
-      <>
-        <div className="flex justify-between">
-          <img src="./img/men_des_02.jpg" alt="logo" className="w-1/9 ml-10" />
+  const formatDate = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return ` ${day}-${month}-${year}`;
+  };
+
+  return (
+    <>
+      <div className="flex justify-between">
+        <img src="./img/men_des_02.jpg" alt="logo" className="w-1/9 ml-10" />
+      </div>
+      <div>
+        <Button
+          color='primary'
+          variant='contained'
+          sx={{ mt: 2, mb: 2, mx: 2 }}                           >
+          <Link to={`/`}>Volver a listado</Link>
+        </Button>
+      </div>
+      <div className="flex flex-col items-center">
+        <Typography sx={{ mt: 2, mb: 4 }} variant="h5"
+        >Consulta detalles OT </Typography>
+        <div className="mb-10 flex flex-col w-1/3">
+          <TextField
+            type="text"
+            value={numOT}
+            onChange={(e) => setNumOT(e.target.value)}
+            label="Número de OT"
+          />
+          <Button
+            color='success'
+            variant='contained'
+            sx={{ mt: 2, mb: 2 }}
+            onClick={fetchData}
+          >
+            Buscar
+          </Button>
         </div>
-        <div></div>
-        <div className="flex flex-col items-center">
-          <Typography sx={{ mt: 2, mb: 4 }} variant="h5"
-          >Consulta detalles OT </Typography>
-          <div className="mb-10 flex flex-col w-1/3">
-            <TextField
-              type="text"
-              value={numOT}
-              onChange={(e) => setNumOT(e.target.value)}
-              label="Número de OT"
-            />
-            <Button
-              color='success'
-              variant='contained'
-              sx = {{mt: 2, mb: 2}}
-              onClick={fetchData}
+
+        {encontrada ? (
+          <>
+            <Grid
+              sx={{ mt: 2, mb: 4 }}
+              container
+              spacing={0}
+              alignItems="center"
+              justifyContent="center"
             >
-              Buscar
-            </Button>
-          </div>
-          
-          {encontrada ? (
-            <>
-              <Tabs
-                value={tabIndex}
-                onChange={handleTabChange}
-                textColor="primary"
-                indicatorColor="primary"
-              >
-                {dataPorArea.map((row, index) => (
-                  <Tab
-                    key={index}
-                    label={obtenerNombreArea(row.area)}
-                    {...a11yProps(index)}
-                  />
-                ))}
-              </Tabs>
-    
+              {otDetalleData && otDetalleData.length > 0 && (
+                <Grid>
+                  <Button onClick={handleOpen} color='warning'
+                    variant='contained'
+                    sx={{ mt: 2, mb: 2, mx: 2 }} >  Abrir Detalles de la ot
+                  </Button>
+                  <Modal disableEnforceFocus disableAutoFocus
+                    aria-labelledby="transition-modal-title"
+                    aria-describedby="transition-modal-description"
+                    open={open}
+                    onClose={handleClose}
+                    closeAfterTransition
+                    keepMounted
+                  >
+                    <Fade in={open} onClose={handleClose}>
+                      <Box sx={styless}>
+                        {otDetalleData.map((row, index) => (
+                          <Typography sx={{ mt: 1 }} key={index}> Producto: {row.Producto} </Typography>
+                        ))}
+                        {otDetalleData.map((row, index) => (
+                          <Typography sx={{ mt: 1 }} key={index}> Numero de OT: {row.NumOt} </Typography>
+                        ))}
+                        {otDetalleData.map((row, index) => (
+                          <Typography sx={{ mt: 1 }} key={index}> Cantidad General: {row.Cantidad} </Typography>
+                        ))}
+                        <Typography sx={{ mt: 1 }}>Merma general: {Merma}</Typography>
+                        <div className='flex flex-row justify-between mt-4'>
+
+                          <Button onClick={handleClose} variant="contained" color="error" >
+
+                            Cerrar
+                          </Button>
+                        </div>
+                      </Box>
+                    </Fade>
+                  </Modal>
+                </Grid>
+              )}
+            </Grid>
+
+            <Tabs
+              value={tabIndex}
+              onChange={handleTabChange}
+              textColor="primary"
+              indicatorColor="primary"
+            >
               {dataPorArea.map((row, index) => (
-                <TabPanel key={index} value={tabIndex} index={index}>
+                <Tab
+                  key={index}
+                  label={obtenerNombreArea(row.area)}
+                  {...a11yProps(index)}
+                />
+              ))}
+            </Tabs>
+
+            {dataPorArea.map((row, index) => (
+              <TabPanel key={index} value={tabIndex} index={index}>
+                <Fade in={tabIndex === index} timeout={700}>
                   <Table>
                     <TableHead>
-                      <TableRow  sx={{ '&:last-child TableCell, &:last-child th': { border: 0 } }}>
-                        <TableCell>   Numero de OT </TableCell>
-                        <TableCell>   Id </TableCell>
-                        <TableCell>   Operador </TableCell>
-                        <TableCell>   Cantidad  </TableCell>
-                        <TableCell>   Área </TableCell>
-                        <TableCell>   Fecha </TableCell>
+                      <TableRow sx={{ '&:last-child TableCell, &:last-child th': { border: 0 } }}>
+                        <TableCell align='center' >   Numero de OT </TableCell>
+                        <TableCell align='center' >   Operador </TableCell>
+                        <TableCell align='center' >   Cantidad  </TableCell>
+                        <TableCell align='center' >   Fecha </TableCell>
+                        <TableCell align='center' >   Merma </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -183,56 +248,30 @@ function Consulta() {
                         .filter((item) => item.Codigo_Area === row.area)
                         .map((filteredRow, index) => (
                           <TableRow
+                            className='hover:bg-gray-200'
                             key={index}
                             sx={{ '&:last-child TableCell, &:last-child th': { border: 0 } }}
-
                           >
-                            <TableCell>
-                              {filteredRow.Num_Ot}
-                            </TableCell>
-                            <TableCell>
-                              {filteredRow.Id}
-                            </TableCell>
-                            <TableCell>
-                              {filteredRow.Rut_Operador}
-                            </TableCell>
-                            <TableCell>
-                              {filteredRow.Cantidad}
-                            </TableCell>
-                            <TableCell >
-                              {obtenerNombreArea(filteredRow.Codigo_Area)}
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(filteredRow.Fecha)}
-                            </TableCell>
-              </TableRow>
-              ))}
-              </TableBody>
-              <TableFooter>
-                  <TableRow>
-                      <TableCell colSpan={3} align="right">
-                        <Typography  component="div">
-                        Cantidad total del área
-                        </Typography>
-                      </TableCell>
-                       <TableCell>
-                          <Typography component="div">
-                          {row.cantidad}
-                          </Typography>
-                       </TableCell>
-                  <TableCell colSpan={2} />
-                  </TableRow>
-                          
-              </TableFooter>
-              </Table>
+                            <TableCell align='center'> {filteredRow.Num_Ot}</TableCell>
+                            <TableCell align='center'> {filteredRow.Rut_Operador}</TableCell>
+                            <TableCell align='center'> {filteredRow.Cantidad}</TableCell>
+                            <TableCell align='center' sx={{ width: 210 }}> {formatDate(filteredRow.Fecha)}</TableCell>
+                            <TableCell align='center'> {filteredRow.Contador2}</TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                    <TableFooter align='right' >
+                    </TableFooter>
+                  </Table>
+                </Fade>
               </TabPanel>
-              ))}
-              </>
-              ) : (
-              <h2>No se ha encontrado la OT</h2>
-              )}
-              </div>
-              </>
-);
-              }
+            ))}
+          </>
+        ) : (
+          <h2>No se ha encontrado la OT</h2>
+        )}
+      </div>
+    </>
+  );
+}
 export default Consulta;
