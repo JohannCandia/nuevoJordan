@@ -1,9 +1,12 @@
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 const config = {
-  server: '192.168.11.251',
-  database: 'sot_archivert_des',
-  user: 'mgarrido',
-  password: 'asdf123.',
+  server: process.env.SERVER,
+  database: process.env.DATABASE,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   options: {
     encrypt: false,
     enableArithAbort: true,

@@ -6,13 +6,15 @@ import otMonitorRoutes from  './src/routes/otMonitor.js';
 import otDetalleRoutes from  './src/routes/otDetalle.js';
 import liberaOTRoutes from   './src/routes/liberaOT.js';
 import aaaaaRoutes from      './src/routes/aaaaa.js';
+import dotenv from 'dotenv';
+dotenv.config(); 
 
 
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 app.use(cors());
-app.use(express.json()); // Habilita el uso de JSON en solicitudes entrantes
+app.use(express.json()); 
 
 
 app.use(historicoRoutes);
